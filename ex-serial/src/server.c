@@ -1,9 +1,9 @@
 /****************************************************************************************
-* Exercice sur les librairies
-* ===========================
+* Exercice sur la serialisation
+* =============================
 *
 * Server implementing the echo protocol (RFC 862)
-* & using the TCP library
+* & using the TCP library & the serial library
 *
 * launch as su
 *
@@ -24,6 +24,7 @@
 #include <netdb.h>
 
 #include "constants.h"
+#include "data.h"
 #include "tcp-util.h"
 
 #define BACKLOG 10  // amount of pending connections allowed

@@ -1,9 +1,11 @@
 /****************************************************************************************
-* Exercice sur les librairies
-* ===========================
+* Exercice sur la serialisation
+* =============================
 *
 * Client implementing the echo protocol (RFC 862)
-* & using the TCP library
+* & using the TCP library & the serial library
+*
+* arg : list size [1, UINT16_MAX]
 *
 * RI 2020 - Laura Binacchi - Fedora 32
 ****************************************************************************************/
@@ -11,24 +13,52 @@
 #include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "constants.h"
+#include "data.h"
 #include "tcp-util.h"
+#include "serial-util.h"
 
 int main(int argc, char *argv[]) {
     char hostname[BUF_SIZE];        // server name or ip address (dot separated)
     char msg_sent[BUF_SIZE];        // message to send to the server
     char msg_received[BUF_SIZE];    // message reveived back from the server
     int sockfd, rv;                 // socket file descriptor & return value
-    
-    // test the params
+    struct data_node *head = NULL;  // first node of the data linked list
+    struct data_node *node;         // node of the linked list used for iteration
+    size_t list_size;               // number of elements contained in the list
+    size_t i;
+
+    // seed the random
+    srand(time(NULL));
+
+    // test the args
     if (argc != 3) {
-        fprintf(stderr,"usage: %s hostname message\n", argv[0]);
+        fprintf(stderr,"usage: %s hostname list_size\n", argv[0]);
+        return 1;
+    }
+    
+    // convert the args
+    strncpy(hostname, argv[1], BUF_SIZE);
+    list_size = strtoul(argv[2], NULL, 10);
+    if (list_size < 1 || list_size > UINT16_MAX) {
+        fprintf(stderr,"argument list_size must be an integer [1, %d]\n", UINT16_MAX);
         return 1;
     }
 
-    strncpy(hostname, argv[1], BUF_SIZE);
+    // generate the data list
+    head = node = create_node(0);
+    for (i = 1; i < list_size; i++) {
+        node->next = create_node(i);
+        node = node->next;
+    }
+
+    print_list(head, list_size);
+
+    free_list(head);
 
     // connect to the server
     sockfd = client_connect(hostname, PORT);
