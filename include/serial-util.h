@@ -72,6 +72,7 @@ char *write_f64(double d, char *out_buf);
 char *write_str(char *str, char *out_buf);
 
 
+
 /**
  * Reads a 16 bytes unsigned integer from the buffer
  * 
@@ -110,7 +111,7 @@ char *read_u64(char *buf, uint64_t *out_i);
  *
  * @return the next space to read from the buffer
  */
-char *readf32(char *buf, float *out_f);
+char *read_f32(char *buf, float *out_f);
 
 /**
  * Reads a 64 bytes float (double) from the buffer
@@ -120,7 +121,7 @@ char *readf32(char *buf, float *out_f);
  *
  * @return the next space to read from the buffer
  */
-char *readf64(char *buf, double *out_d);
+char *read_f64(char *buf, double *out_d);
 
 /**
  * Reads a string prefixed by its size from the buffer
@@ -130,4 +131,4 @@ char *readf64(char *buf, double *out_d);
  *
  * @return the next space to read from the buffer
  */
-char *readf32(char *buf, char **out_str);
+char *read_str(char *buf, char **out_str);

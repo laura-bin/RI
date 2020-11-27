@@ -10,8 +10,9 @@
 
 // https://linux.die.net/man/3/be64toh
 #include <endian.h>
-#include <string.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "serial-util.h"
 
@@ -44,10 +45,10 @@ char *write_f32(float f, char *out_buf) {
     int32_t mantissa;
 
     un_exponentiated_mantissa = frexpf(f, &exponent);
-    out_buf = write_u16(out_buf, exponent);
+    out_buf = write_u16(exponent, out_buf);
 
     mantissa = ldexpf(un_exponentiated_mantissa, MANTISSA_F32_BITS);
-    return write_u32(out_buf, mantissa);
+    return write_u32(mantissa, out_buf);
 }
 
 char *write_f64(double d, char *out_buf) {
@@ -56,15 +57,15 @@ char *write_f64(double d, char *out_buf) {
     int64_t mantissa;
 
     un_exponentiated_mantissa = frexp(d, &exponent);
-    out_buf = write_u16(out_buf, exponent);
+    out_buf = write_u16(exponent, out_buf);
 
     mantissa = ldexp(un_exponentiated_mantissa, MANTISSA_F64_BITS);
-    return write_u64(out_buf, mantissa);
+    return write_u64(mantissa, out_buf);
 }
 
 char *write_str(char *str, char *out_buf) {
     size_t len = strlen(str);
-    out_buf = write_u64(out_buf, len);
+    out_buf = write_u64(len, out_buf);
     memcpy(out_buf, str, len);
     return out_buf + len;
 }
@@ -72,28 +73,28 @@ char *write_str(char *str, char *out_buf) {
 /* READ FUNCTIONS */
 
 char *read_u16(char *buf, uint16_t *out_i) {
-    memcpy(&out_i, buf, sizeof(uint16_t));
-    out_i = be16toh(out_i);
+    memcpy(out_i, buf, sizeof(uint16_t));
+    *out_i = be16toh(*out_i);
     return buf + sizeof(uint16_t);
 }
 
 char *read_u32(char *buf, uint32_t *out_i) {
-    memcpy(&out_i, buf, sizeof(uint32_t));
-    out_i = be32toh(out_i);
+    memcpy(out_i, buf, sizeof(uint32_t));
+    *out_i = be32toh(*out_i);
     return buf + sizeof(uint32_t);
 }
 
 char *read_u64(char *buf, uint64_t *out_i) {
-    memcpy(&out_i, buf, sizeof(uint64_t));
-    out_i = be64toh(out_i);
+    memcpy(out_i, buf, sizeof(uint64_t));
+    *out_i = be64toh(*out_i);
     return buf + sizeof(uint64_t);
 }
 
 char *read_f32(char *buf, float *out_f) {
     int16_t exponent;
     int32_t mantissa;
-    buf = read_u16(buf, &exponent);
-    buf = read_u32(buf, &mantissa);
+    buf = read_u16(buf, (uint16_t*) &exponent);
+    buf = read_u32(buf, (uint32_t*) &mantissa);
 
     *out_f = ldexpf(ldexpf(mantissa, -MANTISSA_F32_BITS), exponent);
 
@@ -103,8 +104,8 @@ char *read_f32(char *buf, float *out_f) {
 char *read_f64(char *buf, double *out_d) {
     int16_t exponent;
     int64_t mantissa;
-    buf = read_u16(buf, &exponent);
-    buf = read_u64(buf, &mantissa);
+    buf = read_u16(buf, (uint16_t*) &exponent);
+    buf = read_u64(buf, (uint64_t*) &mantissa);
 
     *out_d = ldexp(ldexp(mantissa, -MANTISSA_F64_BITS), exponent);
 
@@ -113,7 +114,7 @@ char *read_f64(char *buf, double *out_d) {
 
 char *read_str(char *buf, char **out_str) {
     size_t len;
-    buf = read_u64(buf, len);
+    buf = read_u64(buf, &len);
     *out_str = malloc(len);
     memcpy(*out_str, buf, len);
 

@@ -97,7 +97,7 @@ int send_list(int sockfd, struct data_node *node, uint16_t size) {
 
     start = buffer = BUFFER;
 
-    buffer = write_u16(buffer, size);
+    buffer = write_u16(size, buffer);
     while (node) {
         buffer = write_u16(node->int_16, buffer);
         buffer = write_u32(node->int_32, buffer);
