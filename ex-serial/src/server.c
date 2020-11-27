@@ -5,8 +5,6 @@
 * Server implementing the echo protocol (RFC 862)
 * & using the TCP library & the serial library
 *
-* launch as su
-*
 * RI 2020 - Laura Binacchi - Fedora 32
 ****************************************************************************************/
 
@@ -25,6 +23,7 @@
 
 #include "constants.h"
 #include "data.h"
+#include "serial-util.h"
 #include "tcp-util.h"
 
 #define BACKLOG 10  // amount of pending connections allowed
@@ -40,9 +39,10 @@ void sigchld_handler(int s) {
 int main() {
     int sockfd, newfd;                  // listen on sockfd, new connection on newfd
     char client_ip[INET6_ADDRSTRLEN];   // string containing a human readable ip address of the client
-    char msg[BUF_SIZE];                 // message received and sent back
-    ssize_t bytes_received;             // number of bytes received
-    struct sigaction sa;                
+    struct data_node *node;             // data liked list received and sent back
+    uint16_t list_size;                 // number of nodes contained in the data list
+    ssize_t bytes_received;             // count of bytes received
+    struct sigaction sa;
     
     // open a passive connection
     if ((sockfd = server_listen(PORT, BACKLOG)) < 0) {
@@ -80,29 +80,27 @@ int main() {
         if (!fork()) {
             disconnect(sockfd); // child doesn't need the listener
 
-            while (1) {
-                // receive the message
-                bytes_received = receive_data(newfd, msg, BUF_SIZE);
-                
-                if (bytes_received < 0) {
-                    perror("[server] receiving data");
-                    disconnect(newfd);
-                    return 1;
-                }
+            // receive the data list
+            bytes_received = receive_list(newfd, &node, &list_size);
 
-                // stop reading if the client has closed the connection
-                if (bytes_received == 0) break;
-
-                printf("[server:%s]\t%ld bytes received\n", client_ip, bytes_received);
-
-                // send back the message
-                if (send_data(newfd, msg, bytes_received) < 0) {
-                    perror("[server] sending data");
-                    disconnect(newfd);
-                    return 1;
-                }
+            // stop if an error occured
+            if (bytes_received < 0) {
+                perror("[server] receiving data");
+                disconnect(newfd);
+                return 1;
             }
 
+            // send back an acknowledgement to the client
+            if (send_ack(newfd, bytes_received)) {
+                perror("[server] sending acknowledgement");
+            }
+
+            // print the data received
+            printf("[server:%s]\t%u nodes received (%ld bytes)\n",
+                        client_ip, list_size, bytes_received);
+            print_list(node, list_size);
+
+            // close the socket
             printf("[server:%s] closing\n", client_ip);
             disconnect(newfd);
             return 0;

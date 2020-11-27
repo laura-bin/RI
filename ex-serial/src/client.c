@@ -23,11 +23,13 @@
 
 int main(int argc, char *argv[]) {
     char hostname[BUF_SIZE];        // server name or ip address (dot separated)
-    int sockfd, rv;                 // socket file descriptor & return value
+    int sockfd;                     // socket file descriptor & return value
     struct data_node *head = NULL;  // first node of the data linked list
     struct data_node *node;         // node of the linked list used for iteration
     size_t list_size;               // number of elements contained in the list
     size_t i;
+    ssize_t bytes_sent;
+    ssize_t bytes_received;
 
     // seed the random
     srand(time(NULL));
@@ -55,7 +57,6 @@ int main(int argc, char *argv[]) {
 
     puts("");
     puts("Data sent:");
-    puts("==========");
     print_list(head, list_size);
 
     // connect to the server
@@ -68,25 +69,26 @@ int main(int argc, char *argv[]) {
     }
 
     // send the list
-    if (send_list(sockfd, head, list_size)) {
+    bytes_sent = send_list(sockfd, head, list_size);
+    free_list(head);
+
+    if (bytes_sent <= 0) {
         perror("[client] sending list");
-        free_list(head);
+        return 1;
+    }
+    printf("%ld bytes sucessfully sent\n", bytes_sent);
+
+    // receive acknowledgement from the server
+    bytes_received = receive_ack(sockfd);
+    if (bytes_received < 0) {
+        if (bytes_received == -1) fprintf(stderr, "[client] connection closed by the server before receiving acknowledgement\n");
+        else perror("[client] receiving acknowledgement");
         return 1;
     }
 
-    free_list(head);
-
-    // receive back message
-    // rv = expect_data(sockfd, msg_received, strlen(msg_sent));
-    // if (rv) {
-    //     if (rv == -1) fprintf(stderr, "[client] connection closed by the server before receiving expected amount of data");
-    //     else perror("[client] receiving data");
-    //     return 1;
-    // }
-
-    // // print received message
-    // msg_received[strlen(msg_sent)] = '\0';
-    // printf("[client] message received: \"%s\"\n", msg_received);
+    if (bytes_sent != bytes_received) {
+        fprintf(stderr, "server received %ld bytes but %ld bytes were sent\n", bytes_received, bytes_sent);
+    }
 
     // close the connection
     disconnect(sockfd);

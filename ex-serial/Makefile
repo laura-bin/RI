@@ -12,8 +12,8 @@ clean:
 	rm -fv client server
 
 # compile c files with the lib dependency
-client server: %: src/%.c src/data.o -ltcp -lserial
+client server: %: src/%.c out/data.o -ltcp -lserial
 	$(CC) $(CFLAGS) -Wl,-rpath='$$ORIGIN/../lib' -o $@ $^
 
-src/%.o: src/%.c include/%.h
+out/%.o: src/%.c include/%.h
 	$(CC) $(CFLAGS) -c -o $@ $<

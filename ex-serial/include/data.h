@@ -51,15 +51,37 @@ void free_list(struct data_node *node);
  * @param node: head node pointer
  * @param size: number of elements contained in the list
  * 
- * @return 0 if all data has been sent
+ * @return the amount of bytes sent or -1 if an error occured
  */
-int send_list(int sockfd, struct data_node *node, uint16_t size);
+ssize_t send_list(int sockfd, struct data_node *node, uint16_t size);
 
 /**
  * Receives a data linked list
  * 
  * @param sockfd: tcp connection socket file descriptor
+ * @param out_node: returned linked list pointer containing the data received
+ * @param out_list_size: returned list size (number of nodes contained)
  * 
- * @return the data linked list received
+ * @return number of bytes received, -1 if an error occured
  */
-struct data_node *receive_list(int sockfd);
+ssize_t receive_list(int sockfd, struct data_node **out_node, uint16_t *out_list_size);
+
+/**
+ * Sends an acknowledgement containing the amount of data received
+ * 
+ * @param sockfd: tcp connection socket file descriptor
+ * @param ack_bytes: amount of data received by the server
+ * 
+ * @return the return value of send (0 if all bytes have been send,
+ *      -1 if an error occured & set errno)
+ */
+int send_ack(int sockfd, ssize_t ack_bytes);
+
+/**
+ * Receives an acknowledgement containing the amount of data received
+ * 
+ * @param sockfd: tcp connection socket file descriptor
+ * 
+ * @return the amount of data received by the server or the error code from expect_data
+ */
+ssize_t receive_ack(int sockfd);
