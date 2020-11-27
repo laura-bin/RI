@@ -14,6 +14,9 @@
 #include <stdlib.h>
 
 #include "data.h"
+#include "constants.h"
+#include "serial-util.h"
+#include "tcp-util.h"
 
 /**
  * Generates a random sign (plus or minus)
@@ -41,14 +44,14 @@ char random_char() {
  * @param node: head node pointer
  * @param size: number of nodes to print
  */
-void print_list(struct data_node *node, size_t size) {
-    size_t i = 1;
+void print_list(struct data_node *node, uint16_t size) {
+    uint16_t i = 0;
 
     while (node) {
-        printf("Node %ld/%ld {\n"
+        printf("Node %d/%d {\n"
                 "\tint_16:\t%d\n\tint_32:\t%d\n\tint_64:\t%ld\n"
                 "\tfloat:\t%f\n\tdouble:\t%f\n\tstring:\t%s\n}\n",
-                i, size,
+                i + 1, size,
                 node->int_16, node->int_32, node->int_64,
                 node->f, node->d, node->str);
         node = node->next;
@@ -97,4 +100,52 @@ void free_list(struct data_node *node) {
         // iterate on next node
         node = next_node;
     }
+}
+
+
+/**
+ * Sends a data linked list
+ * 
+ * @param sockfd: tcp connection socket file descriptor
+ * @param node: head node pointer
+ * @param size: number of elements contained in the list
+ * 
+ * @return 0 if all data has been sent
+ */
+int send_list(int sockfd, struct data_node *node, uint16_t size) {
+    char BUFFER[BUF_SIZE];
+    char *start, *buffer;
+    int rv;
+
+    start = buffer = BUFFER;
+
+    buffer = write_u16(buffer, size);
+    while (node) {
+        buffer = write_u16(buffer, node->int_16);
+        buffer = write_u32(buffer, node->int_32);
+        buffer = write_u64(buffer, node->int_64);
+        buffer = write_f32(buffer, node->f);
+        buffer = write_f64(buffer, node->d);
+        buffer = write_str(buffer, node->str);
+
+        rv = send_data(sockfd, start, buffer - start);
+        if (rv) return rv;
+
+        node = node->next;
+        buffer = start;
+    }
+
+    return 0;
+}
+
+/**
+ * Receives a data linked list
+ * 
+ * @param sockfd: tcp connection socket file descriptor
+ * 
+ * @return the data linked list received
+ */
+struct data_node *receive_list(int sockfd) {
+    struct data_node *node;
+    return node;
 }

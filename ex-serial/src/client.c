@@ -20,12 +20,9 @@
 #include "constants.h"
 #include "data.h"
 #include "tcp-util.h"
-#include "serial-util.h"
 
 int main(int argc, char *argv[]) {
     char hostname[BUF_SIZE];        // server name or ip address (dot separated)
-    char msg_sent[BUF_SIZE];        // message to send to the server
-    char msg_received[BUF_SIZE];    // message reveived back from the server
     int sockfd, rv;                 // socket file descriptor & return value
     struct data_node *head = NULL;  // first node of the data linked list
     struct data_node *node;         // node of the linked list used for iteration
@@ -58,35 +55,37 @@ int main(int argc, char *argv[]) {
 
     print_list(head, list_size);
 
-    free_list(head);
-
     // connect to the server
     sockfd = client_connect(hostname, PORT);
     if (sockfd < 0) {
         if (sockfd == -1) fprintf(stderr, "[client] creating the socket: %s\n", gai_strerror(errno));
         else if (sockfd == -2) perror("[client] connecting to the server");
+        
+        free_list(head);
+
         return 1;
     }
 
-    // send message
-    // TODO check if argv[2] > BUF_SIZE, here the message is truncated if too long
-    strncpy(msg_sent, argv[2], BUF_SIZE);
-    if (send_data(sockfd, msg_sent, strlen(msg_sent))) {
-        perror("[client] sending message");
+    // send the list
+    if (send_list(sockfd, head, list_size)) {
+        perror("[client] sending list");
+        free_list(head);
         return 1;
     }
+
+    free_list(head);
 
     // receive back message
-    rv = expect_data(sockfd, msg_received, strlen(msg_sent));
-    if (rv) {
-        if (rv == -1) fprintf(stderr, "[client] connection closed by the server before receiving expected amount of data");
-        else perror("[client] receiving data");
-        return 1;
-    }
+    // rv = expect_data(sockfd, msg_received, strlen(msg_sent));
+    // if (rv) {
+    //     if (rv == -1) fprintf(stderr, "[client] connection closed by the server before receiving expected amount of data");
+    //     else perror("[client] receiving data");
+    //     return 1;
+    // }
 
-    // print received message
-    msg_received[strlen(msg_sent)] = '\0';
-    printf("[client] message received: \"%s\"\n", msg_received);
+    // // print received message
+    // msg_received[strlen(msg_sent)] = '\0';
+    // printf("[client] message received: \"%s\"\n", msg_received);
 
     // close the connection
     disconnect(sockfd);
