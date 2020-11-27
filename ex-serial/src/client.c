@@ -53,6 +53,9 @@ int main(int argc, char *argv[]) {
         node = node->next;
     }
 
+    puts("");
+    puts("Data sent:");
+    puts("==========");
     print_list(head, list_size);
 
     // connect to the server
@@ -60,9 +63,7 @@ int main(int argc, char *argv[]) {
     if (sockfd < 0) {
         if (sockfd == -1) fprintf(stderr, "[client] creating the socket: %s\n", gai_strerror(errno));
         else if (sockfd == -2) perror("[client] connecting to the server");
-        
         free_list(head);
-
         return 1;
     }
 

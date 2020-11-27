@@ -20,102 +20,102 @@
 
 /* WRITE FUNCTIONS */
 
-char *write_u16(char *buffer, uint16_t i) {
+char *write_u16(uint16_t i, char *out_buf) {
     i = htobe16(i);
-    memcpy(buffer, &i, sizeof(uint16_t));
-    return buffer + sizeof(uint16_t);
+    memcpy(out_buf, &i, sizeof(uint16_t));
+    return out_buf + sizeof(uint16_t);
 }
 
-char *write_u32(char *buffer, uint32_t i) {
+char *write_u32(uint32_t i, char *out_buf) {
     i = htobe32(i);
-    memcpy(buffer, &i, sizeof(uint32_t));
-    return buffer + sizeof(uint32_t);
+    memcpy(out_buf, &i, sizeof(uint32_t));
+    return out_buf + sizeof(uint32_t);
 }
 
-char *write_u64(char *buffer, uint64_t i) {
+char *write_u64(uint64_t i, char *out_buf) {
     i = htobe64(i);
-    memcpy(buffer, &i, sizeof(uint64_t));
-    return buffer + sizeof(uint64_t);
+    memcpy(out_buf, &i, sizeof(uint64_t));
+    return out_buf + sizeof(uint64_t);
 }
 
-char *write_f32(char *buffer, float f) {
+char *write_f32(float f, char *out_buf) {
     float un_exponentiated_mantissa;
     int exponent;
     int32_t mantissa;
 
     un_exponentiated_mantissa = frexpf(f, &exponent);
-    buffer = write_u16(buffer, exponent);
+    out_buf = write_u16(out_buf, exponent);
 
     mantissa = ldexpf(un_exponentiated_mantissa, MANTISSA_F32_BITS);
-    return write_u32(buffer, mantissa);
+    return write_u32(out_buf, mantissa);
 }
 
-char *write_f64(char *buffer, double d) {
+char *write_f64(double d, char *out_buf) {
     double un_exponentiated_mantissa;
     int exponent;
     int64_t mantissa;
 
     un_exponentiated_mantissa = frexp(d, &exponent);
-    buffer = write_u16(buffer, exponent);
+    out_buf = write_u16(out_buf, exponent);
 
     mantissa = ldexp(un_exponentiated_mantissa, MANTISSA_F64_BITS);
-    return write_u64(buffer, mantissa);
+    return write_u64(out_buf, mantissa);
 }
 
-char *write_str(char *buffer, char *str) {
-    size_t length = strlen(str);
-    buffer = write_u64(buffer, length);
-    memcpy(buffer, str, length);
-    return buffer + length;
+char *write_str(char *str, char *out_buf) {
+    size_t len = strlen(str);
+    out_buf = write_u64(out_buf, len);
+    memcpy(out_buf, str, len);
+    return out_buf + len;
 }
 
 /* READ FUNCTIONS */
 
-char *read_u16(char *buffer, uint16_t *i) {
-    memcpy(&i, buffer, sizeof(uint16_t));
-    i = be16toh(i);
-    return buffer + sizeof(uint16_t);
+char *read_u16(char *buf, uint16_t *out_i) {
+    memcpy(&out_i, buf, sizeof(uint16_t));
+    out_i = be16toh(out_i);
+    return buf + sizeof(uint16_t);
 }
 
-char *read_u32(char *buffer, uint32_t *i) {
-    memcpy(&i, buffer, sizeof(uint32_t));
-    i = be32toh(i);
-    return buffer + sizeof(uint32_t);
+char *read_u32(char *buf, uint32_t *out_i) {
+    memcpy(&out_i, buf, sizeof(uint32_t));
+    out_i = be32toh(out_i);
+    return buf + sizeof(uint32_t);
 }
 
-char *read_u64(char *buffer, uint64_t *i) {
-    memcpy(&i, buffer, sizeof(uint64_t));
-    i = be64toh(i);
-    return buffer + sizeof(uint64_t);
+char *read_u64(char *buf, uint64_t *out_i) {
+    memcpy(&out_i, buf, sizeof(uint64_t));
+    out_i = be64toh(out_i);
+    return buf + sizeof(uint64_t);
 }
 
-char *read_f32(char *buffer, float *f) {
+char *read_f32(char *buf, float *out_f) {
     int16_t exponent;
     int32_t mantissa;
-    buffer = read_u16(buffer, &exponent);
-    buffer = read_u32(buffer, &mantissa);
+    buf = read_u16(buf, &exponent);
+    buf = read_u32(buf, &mantissa);
 
-    *f = ldexpf(ldexpf(mantissa, -MANTISSA_F32_BITS), exponent);
+    *out_f = ldexpf(ldexpf(mantissa, -MANTISSA_F32_BITS), exponent);
 
-    return buffer;
+    return buf;
 }
 
-char *read_f64(char *buffer, double *d) {
+char *read_f64(char *buf, double *out_d) {
     int16_t exponent;
     int64_t mantissa;
-    buffer = read_u16(buffer, &exponent);
-    buffer = read_u64(buffer, &mantissa);
+    buf = read_u16(buf, &exponent);
+    buf = read_u64(buf, &mantissa);
 
-    *d = ldexp(ldexp(mantissa, -MANTISSA_F64_BITS), exponent);
+    *out_d = ldexp(ldexp(mantissa, -MANTISSA_F64_BITS), exponent);
 
-    return buffer;
+    return buf;
 }
 
-char *read_str(char *buffer, char **str) {
-    size_t length;
-    buffer = read_u64(buffer, length);
-    *str = malloc(length);
-    memcpy(*str, buffer, length);
+char *read_str(char *buf, char **out_str) {
+    size_t len;
+    buf = read_u64(buf, len);
+    *out_str = malloc(len);
+    memcpy(*out_str, buf, len);
 
-    return buffer + length;
+    return buf + len;
 }

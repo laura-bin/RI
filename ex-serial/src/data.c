@@ -18,14 +18,15 @@
 #include "serial-util.h"
 #include "tcp-util.h"
 
+/* PRIVATE FUNCTIONS */
+
 /**
  * Generates a random sign (plus or minus)
  * 
- * @return 1 for plus, - 1 for minus
+ * @return 1 for plus, -1 for minus
  */
 int random_sign() {
-    int random = rand() % 2;
-    return random ? 1 : -1;
+    return rand() % 2 ? 1 : -1;
 }
 
 /**
@@ -38,12 +39,9 @@ char random_char() {
     return chars[rand() % (sizeof(chars) / sizeof(char) - 1)];
 }
 
-/**
- * Prints a list of nodes
- * 
- * @param node: head node pointer
- * @param size: number of nodes to print
- */
+
+/* HEADER PROTOTYPES IMPLEMENTATION */
+
 void print_list(struct data_node *node, uint16_t size) {
     uint16_t i = 0;
 
@@ -59,11 +57,6 @@ void print_list(struct data_node *node, uint16_t size) {
     }
 }
 
-/**
- * Creates a new node with random values
- * 
- * @return the pointer of the node created
- */
 struct data_node *create_node() {
     struct data_node *node = (struct data_node *) malloc(sizeof(struct data_node));
     int str_len = rand() % 30 + 1;
@@ -81,11 +74,6 @@ struct data_node *create_node() {
     return node;
 }
 
-/**
- * Frees the data linked list
- * 
- * @param node: head node pointer
- */
 void free_list(struct data_node *node) {
     struct data_node *next_node;
 
@@ -102,16 +90,6 @@ void free_list(struct data_node *node) {
     }
 }
 
-
-/**
- * Sends a data linked list
- * 
- * @param sockfd: tcp connection socket file descriptor
- * @param node: head node pointer
- * @param size: number of elements contained in the list
- * 
- * @return 0 if all data has been sent
- */
 int send_list(int sockfd, struct data_node *node, uint16_t size) {
     char BUFFER[BUF_SIZE];
     char *start, *buffer;
@@ -121,12 +99,12 @@ int send_list(int sockfd, struct data_node *node, uint16_t size) {
 
     buffer = write_u16(buffer, size);
     while (node) {
-        buffer = write_u16(buffer, node->int_16);
-        buffer = write_u32(buffer, node->int_32);
-        buffer = write_u64(buffer, node->int_64);
-        buffer = write_f32(buffer, node->f);
-        buffer = write_f64(buffer, node->d);
-        buffer = write_str(buffer, node->str);
+        buffer = write_u16(node->int_16, buffer);
+        buffer = write_u32(node->int_32, buffer);
+        buffer = write_u64(node->int_64, buffer);
+        buffer = write_f32(node->f, buffer);
+        buffer = write_f64(node->d, buffer);
+        buffer = write_str(node->str, buffer);
 
         rv = send_data(sockfd, start, buffer - start);
         if (rv) return rv;
@@ -138,13 +116,6 @@ int send_list(int sockfd, struct data_node *node, uint16_t size) {
     return 0;
 }
 
-/**
- * Receives a data linked list
- * 
- * @param sockfd: tcp connection socket file descriptor
- * 
- * @return the data linked list received
- */
 struct data_node *receive_list(int sockfd) {
     struct data_node *node;
     return node;
