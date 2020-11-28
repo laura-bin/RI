@@ -62,7 +62,7 @@ char *write_f32(float f, char *out_buf);
 char *write_f64(double d, char *out_buf);
 
 /**
- * Writes a given 64 bytes float (double) in the buffer
+ * Writes a given string in the buffer
  * 
  * @param str: input data
  * @param out_buf: output buffer
