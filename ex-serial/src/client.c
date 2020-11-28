@@ -11,7 +11,7 @@
 ****************************************************************************************/
 
 #include <errno.h>
-#include <netdb.h>
+#include <netdb.h>              // gai_strerror
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,8 +55,7 @@ int main(int argc, char *argv[]) {
         node = node->next;
     }
 
-    puts("");
-    puts("Data sent:");
+    puts("\nData sent:");
     print_list(head, list_size);
 
     // connect to the server
@@ -76,7 +75,6 @@ int main(int argc, char *argv[]) {
         perror("[client] sending list");
         return 1;
     }
-    printf("%ld bytes sucessfully sent\n", bytes_sent);
 
     // receive acknowledgement from the server
     bytes_received = receive_ack(sockfd);
@@ -86,8 +84,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (bytes_sent != bytes_received) {
-        fprintf(stderr, "server received %ld bytes but %ld bytes were sent\n", bytes_received, bytes_sent);
+    if (bytes_sent == bytes_received) {
+        printf("%ld bytes have been sucessfully sent\n", bytes_sent);
+    } else {
+        fprintf(stderr, "server received %ld bytes on %ld bytes sent\n", bytes_received, bytes_sent);
     }
 
     // close the connection

@@ -8,22 +8,15 @@
 * RI 2020 - Laura Binacchi - Fedora 32
 ****************************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <errno.h>
-#include <string.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <time.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
+#include <netdb.h>          // gai_strerror
+#include <signal.h>         // sigaction
+#include <stdio.h>
+#include <sys/wait.h>       // WNOHANG
+#include <unistd.h>         // fork
 
 #include "constants.h"
 #include "data.h"
-#include "serial-util.h"
 #include "tcp-util.h"
 
 #define BACKLOG 10  // amount of pending connections allowed
@@ -39,9 +32,9 @@ void sigchld_handler(int s) {
 int main() {
     int sockfd, newfd;                  // listen on sockfd, new connection on newfd
     char client_ip[INET6_ADDRSTRLEN];   // string containing a human readable ip address of the client
-    struct data_node *node;             // data liked list received and sent back
+    struct data_node *node;             // data linked list received
     uint16_t list_size;                 // number of nodes contained in the data list
-    ssize_t bytes_received;             // count of bytes received
+    ssize_t bytes_received;             // amount of bytes received
     struct sigaction sa;
     
     // open a passive connection
