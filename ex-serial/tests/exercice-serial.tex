@@ -38,7 +38,7 @@
     \pagenumbering{arabic}
 
     \begin{center}
-        \textbf{\LARGE Travail sur les librairies}
+        \textbf{\LARGE Travail sur la sérialisation}
     \end{center}
 
     \paragraph{}
@@ -76,7 +76,7 @@
     \newpage
     \paragraph{}
     Ces données sont générées aléatoirement par la méthode \texttt{create\_node}.
-    
+
     \paragraph{}
     La liste peut ensuite être envoyée par le client avec \texttt{send\_list} et reçue par le serveur avec \texttt{receive\_list}. L'envoi commence par l'envoi d'un packet contenant le nombre de structures de données (nodes) qui vont être envoyées. Puis chaque structure est envoyée dans un packet indépendant précédé de sa taille. Ces headers permettent au seveur d'attendre d'avoir reçu un node entier (au cas où les packets seraient envoyés en plusieurs fois par la couche réseau) avant de le désérialiser pour composer sa propre liste de données.
 
@@ -170,7 +170,7 @@
 [3]         mkdir out
 [4]         cc -g  -Wall -Wpedantic -Wextra -Iinclude -I../include
                 -c -o out/data.o src/data.c
-[5]         cc -g  -Wall -Wpedantic -Wextra -Iinclude -I../include 
+[5]         cc -g  -Wall -Wpedantic -Wextra -Iinclude -I../include
                 -Wl,-rpath='\$ORIGIN/../lib' -o client src/client.c
                 out/data.o ../lib/libtcp.so ../lib/libserial.so
 [6]         cc -g  -Wall -Wpedantic -Wextra -Iinclude -I../include
@@ -189,7 +189,7 @@
         \item[\texttt{[7]} ] \emph{gmake} retourne dans le répertoire parent
     \end{description}
 
-    
+
     \section{Installation du client et du serveur}
     \paragraph{}
     Je commence par compiler le projet \emph{ex-serial} en local en exécutant la commande \texttt{gmake ex-serial} dans le répertoire à la racine de mes projets :
