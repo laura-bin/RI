@@ -1,0 +1,53 @@
+\documentclass{article}
+
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{moreverb}       % verbatim with tab
+
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{hmargin=2.5cm}
+\usepackage{amsmath}
+\usepackage{siunitx}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{xcolor}
+\usepackage{pdfpages}
+\usepackage{enumitem}
+\usepackage{lscape}
+
+\usepackage{fancyhdr}       % en-têtes
+\usepackage{lastpage}       % numéro de dernière page
+
+\title{Réseaux industriels}
+\date{2020}
+\author{Laura Bin}
+
+\pagestyle{fancy}
+\renewcommand\headrulewidth{1pt}
+\fancyhead[L]{Laura Binacchi}
+\fancyhead[C]{Réseaux industriels}
+\fancyhead[R]{\today}
+
+\begin{document}
+    \pagenumbering{arabic}
+
+    \begin{center}
+        \textbf{\LARGE Travail sur les transferts de fichiers}
+    \end{center}
+
+    \paragraph{}
+    Réaliser un mini serveur et un mini client de type FTP possédant les caractéristiques suivantes :
+    \begin{itemize}
+        \item Lorsqu’un client se connectera, le serveur enverra la liste des fichiers downloadables situés dans un dossier précis du serveur (à déterminer au préalable). Les fichiers peuvent être de tous formats et tailles possibles. Le serveur attendra ensuite du client le nom du fichier à downloader et enverra le fichier au client. Il faudra veiller à optimiser le serveur afin que le transfert soit le plus rapide possible (utiliser une API adéquate pour minimiser les changements de contexte usespace/kernel (cf. cours : \texttt{sendfile()}).
+        \item Le client recevra l’adresse du serveur sur la ligne de commande. Une fois la connexion réalisée, le client affichera la liste des fichiers du serveur et demandera d’entrer le nom d’un fichier à downloader (ou un numéro correspondant au fichier désiré). Le fichier reçu sera enregistré sur le disque du client.
+    \end{itemize}
+
+\end{document}
+\paragraph{}
+
