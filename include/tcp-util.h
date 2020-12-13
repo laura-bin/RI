@@ -1,20 +1,20 @@
 #pragma once
-/****************************************************************************************
-* Exercice sur les librairies
-* ===========================
-*
-* Programmation d'une bibliotheque de fonctions destinees 
-* aux communications TCP/IP (v4 & v6)
-*
-* RI 2020 - Laura Binacchi - Fedora 32
-****************************************************************************************/
+/** *************************************************************************************
+ * Exercice sur les librairies
+ * ===========================
+ *
+ * Programmation d'une bibliotheque de fonctions destinees
+ * aux communications TCP/IP (v4 & v6)
+ *
+ * RI 2020 - Laura Binacchi - Fedora 32
+ ****************************************************************************************/
 
 #include <sys/types.h>
 
 /**
  * Initiates an active TCP connection :
  * creates the socket & connects to a server listening
- * 
+ *
  * @param url: url or ip address separated by dots
  * @param service: port number or service
  *
@@ -28,7 +28,7 @@ int client_connect(char *url, char *service);
 /**
  * Initiates a passive TCP connection :
  * creates the socket & listens for active connections
- * 
+ *
  * @param service: port number or service
  * @param backlog: amount of pending connections allowed
  *
@@ -43,21 +43,21 @@ int server_listen(char *service, int backlog);
 
 /**
  * Accepts the connection from a client
- * 
+ *
  * @param sockfd: server socket file descriptor
  * @param out_client_ip: returned client ip address
- * 
+ *
  * @return active connection socket file descriptor, -1 if an error occured
  */
 int server_accept(int sockfd, char *out_client_ip);
 
 /**
  * Sends data to the remote host
- * 
+ *
  * @param sockfd: socket file descriptor
  * @param buffer: buffer containing the data
  * @param length: buffer length
- * 
+ *
  * @return 0 if all bytes have been sent, -1 if an error occured
  */
 int send_data(int sockfd, char *buffer, ssize_t length);

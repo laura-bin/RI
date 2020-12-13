@@ -1,12 +1,12 @@
-/****************************************************************************************
-* Exercice sur les librairies
-* ===========================
-*
-* Programmation d'une bibliotheque de fonctions destinees 
-* aux communications TCP/IP (v4 & v6)
-*
-* RI 2020 - Laura Binacchi - Fedora 32
-****************************************************************************************/
+/** *************************************************************************************
+ * Exercice sur les librairies
+ * ===========================
+ *
+ * Programmation d'une bibliotheque de fonctions destinees
+ * aux communications TCP/IP (v4 & v6)
+ *
+ * RI 2020 - Laura Binacchi - Fedora 32
+ ****************************************************************************************/
 
 #include <assert.h>
 #include <errno.h>
@@ -23,9 +23,9 @@
 
 /**
  * Gets the IPv4 or IPv6 address
- * 
+ *
  * @param *sa: sockaddr structure
- * 
+ *
  * @return the pointer to the sockaddr_in (IPv4) or sockaddr_in6 (IPv6) address
  */
 void *get_in_addr(struct sockaddr *sa) {
@@ -149,9 +149,9 @@ int server_accept(int sockfd, char *out_client_ip) {
     if (newfd < 0) return -1;
 
     // network to presentation
-    inet_ntop(incoming_addr.ss_family, get_in_addr((struct sockaddr *)&incoming_addr), 
+    inet_ntop(incoming_addr.ss_family, get_in_addr((struct sockaddr *)&incoming_addr),
                 out_client_ip, INET6_ADDRSTRLEN);
-        
+
     return newfd;
 }
 
@@ -161,7 +161,7 @@ int send_data(int sockfd, char *buffer, ssize_t length) {
     // while bytes remains, send them
     while (length > 0) {
         //printf("DEBUG [send_data] sending %ld bytes\n", length);
-        
+
         bytes_sent = send(sockfd, buffer, length, 0);
         if (bytes_sent < 0) return -1;
 
@@ -192,7 +192,7 @@ int expect_data(int sockfd, char *out_buffer, ssize_t length) {
         if (bytes_read < 0) return -2;
 
         // printf("DEBUG(expect_data): received %ld of %ld\n", bytes_read, length);
-     
+
         out_buffer += bytes_read; // move the pointer to the next free space in the byte array
         length -= bytes_read;
     }

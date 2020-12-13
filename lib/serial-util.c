@@ -1,14 +1,15 @@
-/****************************************************************************************
-* Exercice sur la serialisation
-* =============================
-*
-* Programmation d'une bibliotheque de fonctions destinees 
-* a la serialisation de donnees (integer, float, double, etc).
-*
-* RI 2020 - Laura Binacchi - Fedora 32
-****************************************************************************************/
+/** *************************************************************************************
+ * Exercice sur la serialisation
+ * =============================
+ *
+ * Programmation d'une bibliotheque de fonctions destinees
+ * a la serialisation de donnees (integer, float, double, etc.)
+ *
+ * RI 2020 - Laura Binacchi - Fedora 32
+ ****************************************************************************************/
 
 // https://linux.die.net/man/3/be64toh
+// https://stackoverflow.com/questions/14954088/how-do-i-handle-byte-order-differences-when-reading-writing-floating-point-types/14955046#14955046
 #include <endian.h>
 #include <math.h>
 #include <stdlib.h>
