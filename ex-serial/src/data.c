@@ -144,7 +144,7 @@ ssize_t receive_list(int sockfd, struct data_node **out_node, uint16_t *out_list
     // fill the returned list size
     read_u16(start, out_list_size);
 
-    // send packet containing the node prefixed by its size (1 packet = 1 node)
+    // receive packet containing the node prefixed by its size (1 packet = 1 node)
     for (i = 0; i < *out_list_size; i++) {
         // receive the packet header containing the node size
         rv = expect_data(sockfd, start, sizeof(uint32_t));
