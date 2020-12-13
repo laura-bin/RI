@@ -2,7 +2,7 @@
 * Exercice sur la serialisation
 * =============================
 *
-* Data linked list manipulation functionsint
+* Data linked list manipulation functions
 *
 * RI 2020 - Laura Binacchi - Fedora 32
 ****************************************************************************************/
@@ -20,7 +20,7 @@
 
 /**
  * Generates a random sign (plus or minus)
- * 
+ *
  * @return 1 for plus, -1 for minus
  */
 int random_sign() {
@@ -29,7 +29,7 @@ int random_sign() {
 
 /**
  * Generates a random alphanumeric character
- * 
+ *
  * @return the randon character
  */
 char random_char() {
@@ -99,7 +99,7 @@ ssize_t send_list(int sockfd, struct data_node *node, uint16_t size) {
     // send a packet containing the number of nodes that will be sent
     buffer = write_u16(size, buffer);
     if(send_data(sockfd, start, buffer - start)) return -1;
-    
+
     // send packet containing the node prefixed by its size (1 packet = 1 node)
     while (node) {
         // fill the packet with the node data
@@ -113,7 +113,7 @@ ssize_t send_list(int sockfd, struct data_node *node, uint16_t size) {
         // fill the packet header with the data size
         node_size = buffer - start - sizeof(uint32_t);
         write_u32(node_size, start);
-        
+
         // send the packet & stop sending if an error occured
         if (send_data(sockfd, start, buffer - start)) return -1;
         bytes_sent += node_size;
@@ -143,7 +143,7 @@ ssize_t receive_list(int sockfd, struct data_node **out_node, uint16_t *out_list
 
     // fill the returned list size
     read_u16(start, out_list_size);
-    
+
     // send packet containing the node prefixed by its size (1 packet = 1 node)
     for (i = 0; i < *out_list_size; i++) {
         // receive the packet header containing the node size
@@ -186,7 +186,7 @@ ssize_t receive_ack(int sockfd) {
 
     int rv = expect_data(sockfd, ack, sizeof(uint64_t));
     if (rv < 0) return rv;
-    
+
     read_u64(ack, &bytes_received);
     return bytes_received;
 }
