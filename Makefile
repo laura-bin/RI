@@ -7,9 +7,9 @@ CFLAGS ?= -g #debug
 override CFLAGS += -Wall -Wpedantic -Wextra -Iinclude
 export CFLAGS
 
-.PHONY: all ex-lib ex-serial clean
+.PHONY: all ex-lib ex-serial ex-files clean
 
-all: ex-lib ex-serial
+all: ex-lib ex-serial ex-files
 
 clean:
 	find lib/ -name '*.so*' -exec rm -v {} \+
@@ -23,6 +23,10 @@ ex-lib: -ltcp
 # execute make in directory ex-serial
 ex-serial: -ltcp -lserial
 	$(MAKE) -C ex-serial
+
+# execute make in directory ex-files
+ex-files: -ltcp -lserial
+	$(MAKE) -C ex-files
 
 # TCP LIB
 # =======
@@ -54,4 +58,3 @@ lib/libserial.so.1: lib/libserial.so.1.0
 # compile the library v1.0
 lib/libserial.so.1.0: lib/serial-util.c include/serial-util.h
 	$(CC) $(CFLAGS) -Wl,-soname,libserial.so.1 -shared -fPIC -o $@ $<
-	
