@@ -51,10 +51,10 @@ lib/libtcp.so.2.0: lib/tcp-util.c include/tcp-util.h
 lib/libserial.so: lib/libserial.so.1
 	ln -sf $(notdir $<) $@
 
-# resolve links (here .so.1 -> .so.1.0)
-lib/libserial.so.1: lib/libserial.so.1.0
+# resolve links (here .so.1 -> .so.1.1)
+lib/libserial.so.1: lib/libserial.so.1.1
 	ldconfig -r lib -n .
 
 # compile the library v1.0
-lib/libserial.so.1.0: lib/serial-util.c include/serial-util.h
+lib/libserial.so.1.1: lib/serial-util.c include/serial-util.h
 	$(CC) $(CFLAGS) -Wl,-soname,libserial.so.1 -shared -fPIC -o $@ $<
