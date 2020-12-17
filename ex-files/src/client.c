@@ -22,16 +22,12 @@
 
 int main(int argc, char *argv[]) {
     char hostname[BUF_SIZE];        // server name or ip address (dot separated)
-    int sockfd;                     // socket file descriptor & return value
+    int sockfd;                     // socket file descriptor
     struct dl_file *files = NULL;   // list of files received from the server
     uint16_t files_size;            // size of the list received from the server
     struct dl_file *file = NULL;    // file chosen by the user
     uint16_t chosen_file;           // number corresponding to the file chosen by the user (index in the list)
     char id_byte = ID_BYTE;         // protocol identification byte
-    ssize_t rv;
-
-    // seed the random
-    srand(time(NULL));
 
     // test the args
     if (argc != 2) {
@@ -45,20 +41,22 @@ int main(int argc, char *argv[]) {
     // connect to the server
     sockfd = client_connect(hostname, PORT);
     if (sockfd < 0) {
-        if (sockfd == -1) fprintf(stderr, "[client] creating the socket: %s\n", gai_strerror(errno));
-        else if (sockfd == -2) perror("[client] connecting to the server");
+        if (sockfd == ERR_TCP_CREATE_SOCK) {
+            fprintf(stderr, "[client] creating the socket: %s\n", gai_strerror(errno));
+        } else {
+            perror("[client] connecting to the server");
+        }
         return EXIT_FAILURE;
     }
 
     // send identification byte
     if (send_data(sockfd, &id_byte, 1)) {
-        fprintf(stderr, "[client] error while sending the identification byte\n");
+        perror("[client] sending the identification byte");
         return EXIT_FAILURE;
     }
 
     // receive the list of downloadable files
-    rv = receive_list(sockfd, &files, &files_size);
-    if (rv <= 0) {
+    if (receive_list(sockfd, &files, &files_size) < 0) {
         fprintf(stderr, "[client] error while receiving the list\n");
         return EXIT_FAILURE;
     }
@@ -66,10 +64,13 @@ int main(int argc, char *argv[]) {
     // print the list
     puts("\nList of files available for download:");
     print_list(files, files_size);
+    if (files == NULL) {
+        return EXIT_FAILURE;
+    }
 
     // get the the file chosen by the user
-    chosen_file = get_file_id(files_size);
-    file = get_file_by_id(files, chosen_file);
+    chosen_file = get_chosen_file(files_size);
+    file = get_file_by_index(files, chosen_file-1);
     free_list(files);
 
     if (file == NULL) {
@@ -78,21 +79,20 @@ int main(int argc, char *argv[]) {
     }
 
     // send it to the server
-    rv = send_list(sockfd, file, 1);
-
-    if (rv < 0) {
+    if (send_list(sockfd, file, 1) < 0) {
         fprintf(stderr, "[client] error while sending the chosen file\n");
         free_list(file);
         return EXIT_FAILURE;
     }
 
     // receive the file
-    if (receive_file(sockfd, file->name)) {
+    printf("\nDownloading %s...\n", file->name);
+    if (receive_file(sockfd, file, DIR_DL)) {
         perror("[client] receiving file");
         free_list(file);
         return EXIT_FAILURE;
     }
-    printf("[client] file %s successfully downloaded\n", file->name);
+    puts("Success");
     free_list(file);
 
     // close the connection

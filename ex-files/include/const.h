@@ -9,7 +9,6 @@
  ****************************************************************************************/
 
 #define PORT            "8888"          // port number
-#define BUF_SIZE        1024            // max number of bytes we can get at once
 #define ID_BYTE         'a'             // identification byte
 
 #define DIR_FILE        "./files"       // directory containing the downloadable files
