@@ -32,16 +32,16 @@ ex-files: -ltcp -lserial
 # =======
 
 # make the lib available unversioned
-lib/libtcp.so: lib/libtcp.so.1
+lib/libtcp.so: lib/libtcp.so.2
 	ln -sf $(notdir $<) $@
 
-# resolve links (here .so.1 -> .so.1.0)
-lib/libtcp.so.1: lib/libtcp.so.1.0
+# resolve links (here .so.2 -> .so.2.0)
+lib/libtcp.so.2: lib/libtcp.so.2.0
 	ldconfig -r lib -n .
 
-# compile the library v1.0
-lib/libtcp.so.1.0: lib/tcp-util.c include/tcp-util.h
-	$(CC) $(CFLAGS) -Wl,-soname,libtcp.so.1 -shared -fPIC -o $@ $<
+# compile the library v2.0
+lib/libtcp.so.2.0: lib/tcp-util.c include/tcp-util.h
+	$(CC) $(CFLAGS) -Wl,-soname,libtcp.so.2 -shared -fPIC -o $@ $<
 
 
 # SERIAL LIB
