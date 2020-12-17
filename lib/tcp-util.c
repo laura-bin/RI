@@ -2,8 +2,7 @@
  * Exercice sur les librairies
  * ===========================
  *
- * Programmation d'une bibliotheque de fonctions destinees
- * aux communications TCP/IP (v4 & v6)
+ * TCP/IP (v4 & v6) communication library
  *
  * RI 2020 - Laura Binacchi - Fedora 32
  ****************************************************************************************/
@@ -29,7 +28,9 @@
  * @return the pointer to the sockaddr_in (IPv4) or sockaddr_in6 (IPv6) address
  */
 void *get_in_addr(struct sockaddr *sa) {
-    if (sa->sa_family == AF_INET) return &(((struct sockaddr_in*)sa)->sin_addr);
+    if (sa->sa_family == AF_INET) {
+        return &(((struct sockaddr_in*)sa)->sin_addr);
+    }
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
@@ -50,7 +51,7 @@ int client_connect(char *url, char* service) {
     if (err) {
         // set errno
         errno = err;
-        return -1;
+        return ERR_TCP_CREATE_SOCK;
     }
 
     // loop through all the results and connect to the first we can
@@ -76,7 +77,7 @@ int client_connect(char *url, char* service) {
 
     // if p is NULL after the loop, no connection has been successful
     if (p == NULL) {
-        return -2;
+        return ERR_TCP_ACTIVE_CONNECT;
     }
 
     return sockfd;
@@ -101,7 +102,7 @@ int server_listen(char *service, int backlog) {
     if (err) {
         // set errno
         errno = err;
-        return -1;
+        return ERR_TCP_CREATE_SOCK;
     }
 
     // loop through all the results and bind to the first we can
@@ -115,7 +116,7 @@ int server_listen(char *service, int backlog) {
         // override default socket options : allow to reuse the port
         if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))) {
             freeaddrinfo(server_info);
-            return -2;
+            return ERR_TCP_OVER_SOCK_OPT;
         }
 
         // associate the socket with a port on the local machine (for listening)
@@ -131,10 +132,14 @@ int server_listen(char *service, int backlog) {
     // free the linked list (servinfo & p)
     freeaddrinfo(server_info);
 
-    if (p == NULL) return -3;
+    if (p == NULL) {
+        return ERR_TCP_BIND;
+    }
 
     // open a passive connection
-    if (listen(sockfd, backlog)) return -4;
+    if (listen(sockfd, backlog)) {
+        return ERR_TCP_PASSIVE_CONNECT;
+    }
 
     return sockfd;
 }
@@ -146,7 +151,9 @@ int server_accept(int sockfd, char *out_client_ip) {
     int newfd;  // client socket file descriptor
 
     newfd = accept(sockfd, (struct sockaddr *)&incoming_addr, &sin_size);
-    if (newfd < 0) return -1;
+    if (newfd < 0) {
+        return -1;
+    }
 
     // network to presentation
     inet_ntop(incoming_addr.ss_family, get_in_addr((struct sockaddr *)&incoming_addr),
@@ -163,7 +170,9 @@ int send_data(int sockfd, char *buffer, ssize_t length) {
         //printf("DEBUG [send_data] sending %ld bytes\n", length);
 
         bytes_sent = send(sockfd, buffer, length, 0);
-        if (bytes_sent < 0) return -1;
+        if (bytes_sent < 0) {
+            return -1;
+        }
 
         //printf("DEBUG [send_data] sent %ld of %ld bytes\n", bytes_sent, length);
 
@@ -186,10 +195,16 @@ int expect_data(int sockfd, char *out_buffer, ssize_t length) {
         // printf("DEBUG [expect_data] expecting %ld bytes\n", length);
 
         bytes_read = receive_data(sockfd, out_buffer, length);
+
         // if data was still expected & server has closed the connection
-        if (bytes_read == 0) return -1;
+        if (bytes_read == 0) {
+            return ERR_TCP_PEER_CLOSED;
+        }
+
         // if an error occured
-        if (bytes_read < 0) return -2;
+        if (bytes_read < 0) {
+            return ERR_TCP_RECV_DATA;
+        }
 
         // printf("DEBUG(expect_data): received %ld of %ld\n", bytes_read, length);
 
