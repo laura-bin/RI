@@ -116,8 +116,9 @@ char *read_f64(char *buf, double *out_d) {
 char *read_str(char *buf, char **out_str) {
     size_t len;
     buf = read_u64(buf, &len);
-    *out_str = malloc(len);
+    *out_str = malloc(len+1);
     memcpy(*out_str, buf, len);
+    (*out_str)[len] = '\0';
 
     return buf + len;
 }
