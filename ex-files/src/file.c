@@ -194,14 +194,16 @@ ssize_t receive_list(int sockfd, struct dl_file **out_files, uint16_t *out_size)
     char buf_mem[TCP_BUF_SIZE];         // buffer used to receive data
     char *start, *buffer;               // pointers used to access the buffer
     uint16_t i;                         // packet index
+    int rv;
 
     // init variables
     *out_files = NULL;
     start = buffer = buf_mem;
 
     // receive first packet: number of elements contained in the list
-    if (expect_data(sockfd, start, sizeof(uint16_t))) {
-        return -1;
+    rv = expect_data(sockfd, start, sizeof(uint16_t));
+    if (rv) {
+        return rv;
     }
 
     // fill the returned list size
@@ -210,14 +212,16 @@ ssize_t receive_list(int sockfd, struct dl_file **out_files, uint16_t *out_size)
     // receive packets containing the data prefixed by its size (1 packet = 1 node)
     for (i = 0; i < *out_size; i++) {
         // receive the packet header containing the packet size
-        if (expect_data(sockfd, start, sizeof(uint32_t))) {
-            return -1;
+        rv = expect_data(sockfd, start, sizeof(uint32_t));
+        if (rv) {
+            return rv;
         }
         read_u32(start, &data_size);
 
         // receive the data
-        if (expect_data(sockfd, start, data_size)) {
-            return -1;
+        rv = expect_data(sockfd, start, data_size);
+        if (rv) {
+            return rv;
         }
         bytes_received += data_size;
 
