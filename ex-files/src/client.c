@@ -21,7 +21,7 @@
 #include "tcp-util.h"
 
 int main(int argc, char *argv[]) {
-    char hostname[BUF_SIZE];        // server name or ip address (dot separated)
+    char hostname[BUF_SIZE];             // server name or ip address (dot separated)
     int sockfd;                     // socket file descriptor
     struct dl_file *files = NULL;   // list of files received from the server
     uint16_t files_size;            // size of the list received from the server

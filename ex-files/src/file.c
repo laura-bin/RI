@@ -42,9 +42,9 @@ void clean_stdin(void) {
  * @return the file size, 0 if an error occured
  */
 uint64_t get_file_size(char *filename, char* path) {
-    FILE *fp;               // file pointer
-    char filepath[1024];    // file path
-    long size;              // file size
+    FILE *fp;                   // file pointer
+    char filepath[BUF_SIZE];    // file path
+    long size;                  // file size
 
     sprintf(filepath, "%s/%s", path, filename);
 
@@ -150,7 +150,7 @@ void free_list(struct dl_file *files) {
 }
 
 ssize_t send_list(int sockfd, struct dl_file *files, uint16_t size) {
-    char buf_mem[BUF_SIZE];     // buffer used to send data
+    char buf_mem[TCP_BUF_SIZE]; // buffer used to send data
     char *start, *buffer;       // pointers used to access the buffer
     uint32_t data_size;         // size of the packet sent
     ssize_t bytes_sent = 0;     // total amount of data sent
@@ -191,7 +191,7 @@ ssize_t receive_list(int sockfd, struct dl_file **out_files, uint16_t *out_size)
     struct dl_file *prev_file = NULL;   // previous file info kept to link the list
     uint32_t data_size;                 // size of packet expected
     ssize_t bytes_received = 0;         // total amount of data received
-    char buf_mem[BUF_SIZE];             // buffer used to receive data
+    char buf_mem[TCP_BUF_SIZE];         // buffer used to receive data
     char *start, *buffer;               // pointers used to access the buffer
     uint16_t i;                         // packet index
 
@@ -236,7 +236,7 @@ ssize_t receive_list(int sockfd, struct dl_file **out_files, uint16_t *out_size)
 }
 
 int send_file(int sockfd, struct dl_file *file, char *dirname) {
-    char filepath[1024];                // file path
+    char filepath[BUF_SIZE];            // file path
     int fd;                             // file descriptor
     char size_buf[sizeof(uint64_t)];    // buffer used to send the size of the file
     uint64_t remaining_bytes;           // remaining data amount to send
@@ -272,9 +272,9 @@ int send_file(int sockfd, struct dl_file *file, char *dirname) {
 
 int receive_file(int sockfd, struct dl_file *file, char *dirname) {
     FILE *fp;                   // file pointer
-    char filepath[1024];        // file path
+    char filepath[BUF_SIZE];    // file path
     uint64_t remaining_bytes;   // remaining data amount to receive
-    char buffer[BUF_SIZE];      // buffer filled with the data received
+    char buffer[TCP_BUF_SIZE];  // buffer filled with the data received
     ssize_t bytes_expected;     // bytes expected by expect data
 
     // make directory if it does not exist

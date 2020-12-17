@@ -10,6 +10,8 @@
 
 #include <sys/types.h>
 
+#define TCP_BUF_SIZE          1024
+
 #define ERR_TCP_CREATE_SOCK     -1
 #define ERR_TCP_ACTIVE_CONNECT  -2
 #define ERR_TCP_OVER_SOCK_OPT   -3
