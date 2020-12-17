@@ -134,16 +134,14 @@ int main() {
             rsize = receive_list(newfd, &files, &files_size);
             if (rsize < 0) {
                 if (rsize == ERR_TCP_PEER_CLOSED) {
-                    fprintf(stderr, "[server:%s] receiving chosen file: \
-                                client has closed the connection\n", client_ip);
+                    fprintf(stderr, "[server:%s] receiving chosen file: "
+                                "client has closed the connection\n", client_ip);
                 } else {
                     perror("[server] receiving chosen file");
                 }
                 disconnect(newfd);
                 return EXIT_FAILURE;
             }
-
-            // test if file is null
 
             // send the file
             rint = send_file(newfd, files, DIR_FILE);
