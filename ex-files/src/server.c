@@ -4,6 +4,9 @@
  *
  * Server sending the list of files availaible for download
  * then the file chosen by the client
+ * 
+ * Add subdirectory "files" with files to download
+ * or change the downloadable files directory in const.h
  *
  * RI 2020 - Laura Binacchi - Fedora 32
  ****************************************************************************************/
