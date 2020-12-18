@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
     // receive the list of downloadable files
     if (receive_list(sockfd, &files, &files_size) < 0) {
-        perror(stderr, "[client] receiving the list\n");
+        perror("[client] receiving the list\n");
         return EXIT_FAILURE;
     }
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 
     // send it to the server
     if (send_list(sockfd, file, 1) < 0) {
-        perror(stderr, "[client] sending the chosen file\n");
+        perror("[client] sending the chosen file\n");
         free_list(file);
         return EXIT_FAILURE;
     }
